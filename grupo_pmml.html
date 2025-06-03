@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo PMML - Sistema de Predicción</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0078d7;
+            --success-color: #28a745;
+            --background-color: #f0f2f5;
+            --text-color: #333;
+            --error-color: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem clamp(1rem, 3vw, 1.5rem);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            font-weight: 600;
+        }
+
+        .container {
+            flex: 1;
+            width: min(90%, 600px);
+            margin: clamp(1rem, 3vw, 2rem) auto;
+            padding: clamp(1rem, 3vw, 2rem);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-input, .predict-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: clamp(0.5rem, 2vw, 0.75rem);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .file-input:hover, .predict-btn:hover {
+            background-color: #005ba1;
+            transform: translateY(-1px);
+        }
+
+        .file-input:disabled, .predict-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .predict-btn {
+            background-color: var(--success-color);
+        }
+
+        .predict-btn:hover {
+            background-color: #218838;
+        }
+
+        .file-input input[type="file"] {
+            display: none;
+        }
+
+        .status, .result {
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            margin: clamp(0.5rem, 2vw, 1rem) 0;
+            text-align: center;
+            color: var(--text-color);
+            transition: opacity 0.3s;
+        }
+
+        .status.error {
+            color: var(--error-color);
+        }
+
+        .result {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: clamp(0.8rem, 2.5vw, 1.2rem);
+        }
+
+        .input-group label {
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2.3vw, 0.95rem);
+            display: block;
+            margin-bottom: 0.4rem;
+            color: var(--text-color);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: clamp(0.4rem, 1.5vw, 0.6rem);
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .input-group .range-info {
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            color: #555;
+            margin-top: 0.3rem;
+        }
+
+        .scrollable {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+            padding-right: clamp(0.3rem, 1vw, 0.5rem);
+        }
+
+        .scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 4px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            margin-top: auto;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+            }
+            .container {
+                width: 95%;
+                margin: 1rem auto;
+                padding: 1rem;
+            }
+            .file-input, .predict-btn {
+                padding: 0.5rem;
+                font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                width: min(80%, 700px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Grupo PMML - Sistema de Predicción</h1>
+    </div>
+    <div class="container">
+        <button class="file-input" id="fileButton"><i class="fas fa-file-upload"></i> Cargar Archivo PMML<input type="file" id="pmmlFile" accept=".pmml"></button>
+        <div class="status" id="status">Ningún archivo PMML cargado</div>
+        <div class="scrollable" id="inputFrame"></div>
+        <button class="predict-btn" id="predictBtn" disabled><i class="fas fa-chart-line"></i> Predecir</button>
+        <div class="result" id="result"></div>
+    </div>
+    <footer>
+        Desarrollado por Pedro Chávez, Alison Piarpuezan y Darío Cerón
+    </footer>
+
+    <script>
+        let pmmlFile = null;
+        let dataFields = [];
+        let treeModel = null;
+        let xmlDoc = null;
+        let inputs = {};
+
+        const fileButton = document.getElementById('fileButton');
+        const fileInput = document.getElementById('pmmlFile');
+        const statusLabel = document.getElementById('status');
+        const inputFrame = document.getElementById('inputFrame');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultLabel = document.getElementById('result');
+
+        fileButton.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', loadPMML);
+        predictBtn.addEventListener('click', predict);
+
+        function loadPMML(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                statusLabel.textContent = "Ningún archivo seleccionado";
+                statusLabel.classList.add('error');
+                return;
+            }
+            if (!file.name.endsWith('.pmml')) {
+                alert("Por favor, selecciona un archivo con extensión .pmml");
+                statusLabel.textContent = "Archivo no válido";
+                statusLabel.classList.add('error');
+                return;
+            }
+            pmmlFile = file;
+            fileButton.disabled = true;
+            statusLabel.textContent = `Cargando: ${file.name}`;
+            statusLabel.classList.remove('error');
+            console.log("Archivo seleccionado:", file.name);
+            parsePMML(file);
+        }
+
+        function parsePMML(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    console.log("Iniciando parseo del archivo PMML...");
+                    const parser = new DOMParser();
+                    xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+                    if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                        throw new Error("El archivo PMML contiene errores de sintaxis XML");
+                    }
+                    const ns = { pmml: "http://www.dmg.org/PMML-4_2" };
+                    dataFields = [];
+                    const dataFieldNodes = xmlDoc.evaluate("//pmml:DataDictionary/pmml:DataField", xmlDoc, 
+                        nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                    let node;
+                    while (node = dataFieldNodes.iterateNext()) {
+                        const name = node.getAttribute("name");
+                        const optype = node.getAttribute("optype");
+                        const dataType = node.getAttribute("dataType");
+                        let values = [];
+                        if (optype === "categorical") {
+                            const valueNodes = xmlDoc.evaluate("pmml:Value", node, nsResolver, 
+                                XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                            let valueNode;
+                            while (valueNode = valueNodes.iterateNext()) {
+                                values.push(valueNode.getAttribute("value"));
+                            }
+                        } else if (optype === "continuous") {
+                            const intervalNodes = xmlDoc.evaluate("pmml:Interval", node, nsResolver, 
+                                XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                            if (intervalNodes) {
+                                const left = parseFloat(intervalNodes.getAttribute("leftMargin"));
+                                const right = parseFloat(intervalNodes.getAttribute("rightMargin"));
+                                values = [left, right];
+                            }
+                        }
+                        dataFields.push({ name, optype, dataType, values });
+                    }
+                    console.log("Campos de datos encontrados:", dataFields);
+                    treeModel = xmlDoc.evaluate("//pmml:TreeModel", xmlDoc, nsResolver, 
+                        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                    if (!treeModel) {
+                        throw new Error("No se encontró un TreeModel en el archivo PMML");
+                    }
+                    statusLabel.textContent = `Archivo cargado: ${file.name}`;
+                    statusLabel.classList.remove('error');
+                    predictBtn.disabled = false;
+                    createInputFields();
+                } catch (err) {
+                    console.error("Error al parsear PMML:", err);
+                    alert(`No se pudo leer el archivo PMML: ${err.message}`);
+                    statusLabel.textContent = "Error al cargar el archivo";
+                    statusLabel.classList.add('error');
+                    pmmlFile = null;
+                    dataFields = [];
+                    treeModel = null;
+                    xmlDoc = null;
+                    predictBtn.disabled = true;
+                } finally {
+                    fileButton.disabled = false;
+                }
+            };
+            reader.onerror = function() {
+                console.error("Error al leer el archivo:", reader.error);
+                alert("Error al leer el archivo PMML");
+                statusLabel.textContent = "Error al leer el archivo";
+                statusLabel.classList.add('error');
+                fileButton.disabled = false;
+            };
+            reader.readAsText(file);
+        }
+
+        function nsResolver(prefix) {
+            return prefix === "pmml" ? "http://www.dmg.org/PMML-4_2" : null;
+        }
+
+        function createInputFields() {
+            inputFrame.innerHTML = '';
+            inputs = {};
+            dataFields.forEach(field => {
+                if (field.name === "LENTE") return;
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                const label = document.createElement('label');
+                label.textContent = field.name.charAt(0).toUpperCase() + field.name.slice(1).toLowerCase();
+                div.appendChild(label);
+                if (field.optype === "categorical") {
+                    const select = document.createElement('select');
+                    field.values.forEach(val => {
+                        const option = document.createElement('option');
+                        option.value = val;
+                        option.textContent = val;
+                        select.appendChild(option);
+                    });
+                    div.appendChild(select);
+                    inputs[field.name] = select;
+                } else if (field.optype === "continuous") {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.step = 'any';
+                    div.appendChild(input);
+                    const rangeInfo = document.createElement('div');
+                    rangeInfo.className = 'range-info';
+                    rangeInfo.textContent = `Rango: ${field.values[0]} a ${field.values[1]}`;
+                    div.appendChild(rangeInfo);
+                    inputs[field.name] = input;
+                }
+                inputFrame.appendChild(div);
+            });
+            console.log("Campos de entrada generados:", Object.keys(inputs));
+        }
+
+        function predict() {
+            if (!pmmlFile || !treeModel || !xmlDoc) {
+                alert("Por favor, carga un archivo PMML válido primero.");
+                return;
+            }
+            const inputData = {};
+            try {
+                for (const field of dataFields) {
+                    if (field.name === "LENTE") continue;
+                    let value = inputs[field.name].value;
+                    if (!value) {
+                        throw new Error(`El campo ${field.name} no puede estar vacío`);
+                    }
+                    if (field.optype === "continuous") {
+                        value = parseFloat(value);
+                        if (isNaN(value)) throw new Error(`Ingresa un valor numérico para ${field.name}`);
+                        const [min, max] = field.values;
+                        if (value < min || value > max) {
+                            throw new Error(`${field.name} debe estar entre ${min} y ${max}`);
+                        }
+                    } else if (field.optype === "categorical" && !field.values.includes(value)) {
+                        throw new Error(`Valor inválido para ${field.name}. Selecciona de ${field.values.join(", ")}`);
+                    }
+                    inputData[field.name] = value;
+                }
+                console.log("Datos de entrada:", inputData);
+                let currentNode = xmlDoc.evaluate("pmml:Node[pmml:True]", treeModel, nsResolver, 
+                    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                if (!currentNode) {
+                    throw new Error("No se encontró un nodo inicial con predicado True");
+                }
+                while (true) {
+                    const score = currentNode.getAttribute("score");
+                    const children = xmlDoc.evaluate("pmml:Node", currentNode, nsResolver, 
+                        XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                    let child, matched = false;
+                    while (child = children.iterateNext()) {
+                        const predicate = xmlDoc.evaluate("pmml:SimplePredicate", child, nsResolver, 
+                            XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        if (predicate) {
+                            const field = predicate.getAttribute("field");
+                            const operator = predicate.getAttribute("operator");
+                            const value = predicate.getAttribute("value");
+                            const inputValue = inputData[field];
+                            if (evaluatePredicate(inputValue, operator, value, field === "ASTIGMATISMO")) {
+                                currentNode = child;
+                                matched = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!matched) {
+                        resultLabel.textContent = `Predicción: ${score || 'Sin predicción'}`;
+                        console.log("Predicción final:", score || 'Sin predicción');
+                        break;
+                    }
+                }
+            } catch (err) {
+                console.error("Error en predicción:", err);
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        function evaluatePredicate(inputValue, operator, value, isNumeric) {
+            if (isNumeric) {
+                inputValue = parseFloat(inputValue);
+                value = parseFloat(value);
+                if (operator === "lessOrEqual") return inputValue <= value;
+                if (operator === "greaterThan") return inputValue > value;
+            } else {
+                return inputValue === value;
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

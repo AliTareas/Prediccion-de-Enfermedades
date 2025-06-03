@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PMML version="4.2" xmlns="http://www.dmg.org/PMML-4_2">
+  <Header copyright="Alison">
+    <Application name="KNIME" version="5.4.3"/>
+  </Header>
+  <DataDictionary numberOfFields="18">
+    <DataField name="EDAD" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="5" rightMargin="83"/>
+    </DataField>
+    <DataField name="SG" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="1.005" rightMargin="1.025"/>
+    </DataField>
+    <DataField name="AZUCAR" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="0" rightMargin="5"/>
+    </DataField>
+    <DataField name="GLOBULOS_ROJOS(GR)" optype="categorical" dataType="string">
+      <Value value="normal"/>
+      <Value value="anormal"/>
+    </DataField>
+    <DataField name="CELULAS_PUS" optype="categorical" dataType="string">
+      <Value value="anormal"/>
+      <Value value="normal"/>
+    </DataField>
+    <DataField name="BACTERIAS" optype="categorical" dataType="string">
+      <Value value="no"/>
+      <Value value="si"/>
+    </DataField>
+    <DataField name="GLUCOSA" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="70" rightMargin="490"/>
+    </DataField>
+    <DataField name="UREA" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="10.0" rightMargin="309.0"/>
+    </DataField>
+    <DataField name="CREATININA" optype="continuous" dataType="string">
+      <Interval closure="closedClosed" leftMargin="1.0" rightMargin="16.0"/>
+    </DataField>
+    <DataField name="SODIO" optype="continuous" dataType="integer">
+      <Interval closure="closedClosed" leftMargin="111" rightMargin="150"/>
+    </DataField>
+    <DataField name="POTASIO" optype="categorical" dataType="string">
+      <Interval closure="closedClosed" leftMargin="1.0" rightMargin="10.0"/>
+    </DataField>
+    <DataField name="HEMOGLOBINA" optype="categorical" dataType="string"/>
+    
+    <DataField name="HIPERTENSION" optype="categorical" dataType="string">
+      <Value value="si"/>
+      <Value value="no"/>
+    </DataField>
+    <DataField name="DIABETES" optype="categorical" dataType="string">
+      <Value value="no"/>
+      <Value value="si"/>
+    </DataField>
+    <DataField name="APETITO" optype="categorical" dataType="string">
+      <Value value="malo"/>
+      <Value value="bueno"/>
+    </DataField>
+    <DataField name="EDEMA_PODAL" optype="categorical" dataType="string">
+      <Value value="si"/>
+      <Value value="no"/>
+    </DataField>
+    <DataField name="ANEMIA" optype="categorical" dataType="string">
+      <Value value="si"/>
+      <Value value="no"/>
+    </DataField>
+    <DataField name="CONDICION" optype="categorical" dataType="string">
+      <Value value="enfermo"/>
+      <Value value="sano"/>
+    </DataField>
+  </DataDictionary>
+  <TreeModel modelName="DecisionTree" functionName="classification" splitCharacteristic="multiSplit" missingValueStrategy="lastPrediction" noTrueChildStrategy="returnNullPrediction">
+    <MiningSchema>
+      <MiningField name="EDAD" invalidValueTreatment="asIs"/>
+      <MiningField name="SG" invalidValueTreatment="asIs"/>
+      <MiningField name="AZUCAR" invalidValueTreatment="asIs"/>
+      <MiningField name="GLOBULOS_ROJOS(GR)" invalidValueTreatment="asIs"/>
+      <MiningField name="CELULAS_PUS" invalidValueTreatment="asIs"/>
+      <MiningField name="BACTERIAS" invalidValueTreatment="asIs"/>
+      <MiningField name="GLUCOSA" invalidValueTreatment="asIs"/>
+      <MiningField name="UREA" invalidValueTreatment="asIs"/>
+      <MiningField name="CREATININA" invalidValueTreatment="asIs"/>
+      <MiningField name="SODIO" invalidValueTreatment="asIs"/>
+      <MiningField name="POTASIO" invalidValueTreatment="asIs"/>
+      <MiningField name="HIPERTENSION" invalidValueTreatment="asIs"/>
+      <MiningField name="DIABETES" invalidValueTreatment="asIs"/>
+      <MiningField name="APETITO" invalidValueTreatment="asIs"/>
+      <MiningField name="EDEMA_PODAL" invalidValueTreatment="asIs"/>
+      <MiningField name="ANEMIA" invalidValueTreatment="asIs"/>
+      <MiningField name="CONDICION" invalidValueTreatment="asIs" usageType="target"/>
+    </MiningSchema>
+    <Node id="0" score="sano" recordCount="158.0">
+      <True/>
+      <ScoreDistribution value="enfermo" recordCount="43.0"/>
+      <ScoreDistribution value="sano" recordCount="115.0"/>
+      <Node id="1" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="3.8"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="2" score="enfermo" recordCount="2.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="7.2"/>
+        <ScoreDistribution value="enfermo" recordCount="2.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="3" score="enfermo" recordCount="3.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="2.7"/>
+        <ScoreDistribution value="enfermo" recordCount="3.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="4" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="4.1"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="5" score="enfermo" recordCount="2.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="3.9"/>
+        <ScoreDistribution value="enfermo" recordCount="2.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="6" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="7.7"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="7" score="sano" recordCount="12.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.9"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="11.0"/>
+        <Node id="14" score="enfermo" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="4.0"/>
+          <ScoreDistribution value="enfermo" recordCount="1.0"/>
+          <ScoreDistribution value="sano" recordCount="0.0"/>
+        </Node>
+        <Node id="16" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="4.8"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="19" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="3.5"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="22" score="sano" recordCount="2.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="4.9"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="2.0"/>
+        </Node>
+        <Node id="23" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="4.7"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="31" score="sano" recordCount="2.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="3.9"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="2.0"/>
+        </Node>
+        <Node id="32" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="4.5"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="34" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="5.0"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="35" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="3.6"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+        <Node id="38" score="sano" recordCount="1.0">
+          <SimplePredicate field="POTASIO" operator="equal" value="3.3"/>
+          <ScoreDistribution value="enfermo" recordCount="0.0"/>
+          <ScoreDistribution value="sano" recordCount="1.0"/>
+        </Node>
+      </Node>
+      <Node id="39" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="4.6"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="40" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="3.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="41" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="6.7"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="42" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="8.5"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="43" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="15.0"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="44" score="enfermo" recordCount="2.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="3.2"/>
+        <ScoreDistribution value="enfermo" recordCount="2.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="45" score="enfermo" recordCount="5.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="1.7"/>
+        <ScoreDistribution value="enfermo" recordCount="5.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="46" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="3.6"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="47" score="enfermo" recordCount="2.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="5.6"/>
+        <ScoreDistribution value="enfermo" recordCount="2.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="48" score="enfermo" recordCount="2.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="5.3"/>
+        <ScoreDistribution value="enfermo" recordCount="2.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="49" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="9.2"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="50" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="2.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="51" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="14.2"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="52" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="1.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="53" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="2.6"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="54" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="2.2"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="55" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="4.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="56" score="sano" recordCount="10.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="1.0"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="9.0"/>
+      </Node>
+      <Node id="59" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="11.8"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="60" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="12.8"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="61" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="11.9"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="62" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="12.0"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="63" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="6.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="64" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="15.2"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="65" score="enfermo" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="13.3"/>
+        <ScoreDistribution value="enfermo" recordCount="1.0"/>
+        <ScoreDistribution value="sano" recordCount="0.0"/>
+      </Node>
+      <Node id="66" score="sano" recordCount="26.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="1.2"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="26.0"/>
+      </Node>
+      <Node id="67" score="sano" recordCount="12.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.6"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="12.0"/>
+      </Node>
+      <Node id="68" score="sano" recordCount="11.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.8"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="11.0"/>
+      </Node>
+      <Node id="69" score="sano" recordCount="17.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.5"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="17.0"/>
+      </Node>
+      <Node id="70" score="sano" recordCount="14.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.7"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="14.0"/>
+      </Node>
+      <Node id="71" score="sano" recordCount="14.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="1.1"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="14.0"/>
+      </Node>
+      <Node id="72" score="sano" recordCount="1.0">
+        <SimplePredicate field="CREATININA" operator="equal" value="0.4"/>
+        <ScoreDistribution value="enfermo" recordCount="0.0"/>
+        <ScoreDistribution value="sano" recordCount="1.0"/>
+      </Node>
+    </Node>
+  </TreeModel>
+</PMML>
