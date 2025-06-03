@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo PMML - Sistema de Predicción</title>
+    <title>Grupo PMML - Predicción de Enfermedad Renal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
@@ -195,7 +195,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Grupo PMML - Sistema de Predicción</h1>
+        <h1>Grupo PMML - Predicción de Enfermedad Renal</h1>
     </div>
     <div class="container">
         <button class="file-input" id="fileButton"><i class="fas fa-file-upload"></i> Cargar Archivo PMML<input type="file" id="pmmlFile" accept=".pmml"></button>
@@ -214,6 +214,7 @@
         let treeModel = null;
         let xmlDoc = null;
         let inputs = {};
+        let targetField = null;
 
         const fileButton = document.getElementById('fileButton');
         const fileInput = document.getElementById('pmmlFile');
@@ -259,24 +260,49 @@
                     }
                     const ns = { pmml: "http://www.dmg.org/PMML-4_2" };
                     dataFields = [];
-                    const dataFieldNodes = xmlDoc.evaluate("//pmml:DataDictionary/pmml:DataField", xmlDoc, 
-                        nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                    targetField = null;
+
+                    // Identificar la variable objetivo desde MiningSchema
+                    const miningFields = xmlDoc.evaluate("//pmml:MiningSchema/pmml:MiningField", xmlDoc, nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                    let miningField;
+                    while (miningField = miningFields.iterateNext()) {
+                        if (miningField.getAttribute("usageType") === "target") {
+                            targetField = miningField.getAttribute("name");
+                            console.log("Variable objetivo encontrada:", targetField);
+                            break;
+                        }
+                    }
+
+                    // Extraer campos de datos
+                    const dataFieldNodes = xmlDoc.evaluate("//pmml:DataDictionary/pmml:DataField", xmlDoc, nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                     let node;
                     while (node = dataFieldNodes.iterateNext()) {
                         const name = node.getAttribute("name");
-                        const optype = node.getAttribute("optype");
-                        const dataType = node.getAttribute("dataType");
+                        let optype = node.getAttribute("optype");
+                        let dataType = node.getAttribute("dataType");
                         let values = [];
+
+                        // Corrección para tipos de datos incoherentes
+                        if (name === "CREATININA" && dataType === "string") {
+                            dataType = "double"; // Tratar como numérico
+                            optype = "continuous";
+                        }
+                        if (name === "POTASIO" && optype === "categorical") {
+                            optype = "continuous"; // Tratar como continuo
+                            dataType = "double";
+                        }
+                        if (name === "HEMOGLOBINA" && !node.getElementsByTagName("Value").length && !node.getElementsByTagName("Interval").length) {
+                            continue; // Excluir HEMOGLOBINA por falta de valores
+                        }
+
                         if (optype === "categorical") {
-                            const valueNodes = xmlDoc.evaluate("pmml:Value", node, nsResolver, 
-                                XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                            const valueNodes = xmlDoc.evaluate("pmml:Value", node, nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                             let valueNode;
                             while (valueNode = valueNodes.iterateNext()) {
                                 values.push(valueNode.getAttribute("value"));
                             }
                         } else if (optype === "continuous") {
-                            const intervalNodes = xmlDoc.evaluate("pmml:Interval", node, nsResolver, 
-                                XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                            const intervalNodes = xmlDoc.evaluate("pmml:Interval", node, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                             if (intervalNodes) {
                                 const left = parseFloat(intervalNodes.getAttribute("leftMargin"));
                                 const right = parseFloat(intervalNodes.getAttribute("rightMargin"));
@@ -286,11 +312,12 @@
                         dataFields.push({ name, optype, dataType, values });
                     }
                     console.log("Campos de datos encontrados:", dataFields);
-                    treeModel = xmlDoc.evaluate("//pmml:TreeModel", xmlDoc, nsResolver, 
-                        XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                    treeModel = xmlDoc.evaluate("//pmml:TreeModel", xmlDoc, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                     if (!treeModel) {
                         throw new Error("No se encontró un TreeModel en el archivo PMML");
                     }
+
                     statusLabel.textContent = `Archivo cargado: ${file.name}`;
                     statusLabel.classList.remove('error');
                     predictBtn.disabled = false;
@@ -304,6 +331,7 @@
                     dataFields = [];
                     treeModel = null;
                     xmlDoc = null;
+                    targetField = null;
                     predictBtn.disabled = true;
                 } finally {
                     fileButton.disabled = false;
@@ -325,15 +353,15 @@
 
         function createInputFields() {
             inputFrame.innerHTML = '';
-            inputs = {};
+            inputs = [];
             dataFields.forEach(field => {
-                if (field.name === "LENTE") return;
+                if (field.name === targetField) return; // Excluir variable objetivo
                 const div = document.createElement('div');
                 div.className = 'input-group';
                 const label = document.createElement('label');
                 label.textContent = field.name.charAt(0).toUpperCase() + field.name.slice(1).toLowerCase();
                 div.appendChild(label);
-                if (field.optype === "categorical") {
+                if (field.optype === "categorical" && field.values.length > 0) {
                     const select = document.createElement('select');
                     field.values.forEach(val => {
                         const option = document.createElement('option');
@@ -343,7 +371,7 @@
                     });
                     div.appendChild(select);
                     inputs[field.name] = select;
-                } else if (field.optype === "continuous") {
+                } else if (field.optype === "continuous" && field.values.length === 2) {
                     const input = document.createElement('input');
                     input.type = 'number';
                     input.step = 'any';
@@ -364,17 +392,17 @@
                 alert("Por favor, carga un archivo PMML válido primero.");
                 return;
             }
-            const inputData = {};
+            const inputData = [];
             try {
                 for (const field of dataFields) {
-                    if (field.name === "LENTE") continue;
+                    if (field.name === targetField) continue;
                     let value = inputs[field.name].value;
                     if (!value) {
                         throw new Error(`El campo ${field.name} no puede estar vacío`);
                     }
                     if (field.optype === "continuous") {
                         value = parseFloat(value);
-                        if (isNaN(value)) throw new Error(`Ingresa un valor numérico para ${field.name}`);
+                        if (isNaN(value)) throw new Error(`Ingresa un valor numérico válido para ${field.name}`);
                         const [min, max] = field.values;
                         if (value < min || value > max) {
                             throw new Error(`${field.name} debe estar entre ${min} y ${max}`);
@@ -385,25 +413,22 @@
                     inputData[field.name] = value;
                 }
                 console.log("Datos de entrada:", inputData);
-                let currentNode = xmlDoc.evaluate("pmml:Node[pmml:True]", treeModel, nsResolver, 
-                    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                let currentNode = xmlDoc.evaluate("pmml:Node[pmml:True]", treeModel, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                 if (!currentNode) {
                     throw new Error("No se encontró un nodo inicial con predicado True");
                 }
                 while (true) {
                     const score = currentNode.getAttribute("score");
-                    const children = xmlDoc.evaluate("pmml:Node", currentNode, nsResolver, 
-                        XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                    const children = xmlDoc.evaluate("pmml:Node", currentNode, nsResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                     let child, matched = false;
                     while (child = children.iterateNext()) {
-                        const predicate = xmlDoc.evaluate("pmml:SimplePredicate", child, nsResolver, 
-                            XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        const predicate = xmlDoc.evaluate("pmml:SimplePredicate", child, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                         if (predicate) {
                             const field = predicate.getAttribute("field");
                             const operator = predicate.getAttribute("operator");
                             const value = predicate.getAttribute("value");
                             const inputValue = inputData[field];
-                            if (evaluatePredicate(inputValue, operator, value, field === "ASTIGMATISMO")) {
+                            if (evaluatePredicate(inputValue, operator, value, field === "CREATININA" || field === "POTASIO")) {
                                 currentNode = child;
                                 matched = true;
                                 break;
@@ -411,7 +436,13 @@
                         }
                     }
                     if (!matched) {
-                        resultLabel.textContent = `Predicción: ${score || 'Sin predicción'}`;
+                        let mensaje = `Predicción: ${score || 'Sin predicción'}`;
+                        if (score === 'enfermo') {
+                            mensaje = 'El paciente tiene riesgo de enfermedad renal crónica.';
+                        } else if (score === 'sano') {
+                            mensaje = 'El paciente no tiene riesgo de enfermedad renal crónica.';
+                        }
+                        resultLabel.textContent = mensaje;
                         console.log("Predicción final:", score || 'Sin predicción');
                         break;
                     }
@@ -426,6 +457,10 @@
             if (isNumeric) {
                 inputValue = parseFloat(inputValue);
                 value = parseFloat(value);
+                if (operator === "equal") {
+                    // Tolerancia para comparación de punto flotante
+                    return Math.abs(inputValue - value) < 0.001;
+                }
                 if (operator === "lessOrEqual") return inputValue <= value;
                 if (operator === "greaterThan") return inputValue > value;
             } else {
